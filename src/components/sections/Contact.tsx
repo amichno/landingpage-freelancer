@@ -46,14 +46,21 @@ export function Contact() {
           />
 
           <div className="mt-1 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <span role="status" aria-live="polite" className="text-[0.85rem] text-accent">
-              {status === "success" ? "Thanks! Your message has been sent." : ""}
+            <span
+              role="status"
+              aria-live="polite"
+              className={`text-[0.85rem] ${status === "error" ? "text-danger" : "text-accent"}`}
+            >
+              {status === "success" && "Thanks! Your message has been sent."}
+              {status === "sending" && "Sending..."}
+              {status === "error" && "Something went wrong. Please try again in a moment."}
             </span>
             <button
               type="submit"
-              className="inline-block rounded-sm border border-accent px-6 py-3 text-center font-display text-[0.72rem] font-bold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent hover:text-bg focus-visible:bg-accent focus-visible:text-bg"
+              disabled={status === "sending"}
+              className="inline-block rounded-sm border border-accent px-6 py-3 text-center font-display text-[0.72rem] font-bold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent hover:text-bg focus-visible:bg-accent focus-visible:text-bg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-accent"
             >
-              Send Message
+              {status === "sending" ? "Sending..." : "Send Message"}
             </button>
           </div>
         </form>
