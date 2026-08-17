@@ -25,4 +25,4 @@ export type ContactFormValues = Record<ContactFormField, string>;
 
 export type ContactFormErrors = Partial<Record<ContactFormField, string>>;
 
-export type SubmitStatus = "idle" | "success";
+export type SubmitStatus = "idle" | "sending" | "success" | "error";

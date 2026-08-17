@@ -6,6 +6,7 @@ import type {
   SubmitStatus,
 } from "@/types";
 import { validateAll, validateField } from "@/utils/validation";
+import { sendContactEmail } from "@/utils/email";
 
 const initialValues: ContactFormValues = {
   name: "",
@@ -41,23 +42,30 @@ export function useContactForm() {
   }, [values]);
 
   const handleSubmit = useCallback(
-    (event: React.FormEvent<HTMLFormElement>) => {
+    async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      setStatus("idle");
 
       const nextErrors = validateAll(values);
       setErrors(nextErrors);
       setTouched({ name: true, email: true, message: true });
 
       if (Object.keys(nextErrors).length > 0) {
+        setStatus("idle");
         return;
       }
 
-      // No backend wired up — simulate a successful submission.
-      setStatus("success");
-      setValues(initialValues);
-      setTouched({});
-      setErrors({});
+      setStatus("sending");
+
+      try {
+        await sendContactEmail(values);
+        setStatus("success");
+        setValues(initialValues);
+        setTouched({});
+        setErrors({});
+      } catch (error) {
+        console.error("Failed to send contact email:", error);
+        setStatus("error");
+      }
     },
     [values]
   );
