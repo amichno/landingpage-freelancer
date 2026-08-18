@@ -1,45 +1,48 @@
-import { useCallback, useState } from "react";
-import type {
-  ContactFormErrors,
-  ContactFormField,
-  ContactFormValues,
-  SubmitStatus,
-} from "@/types";
-import { validateAll, validateField } from "@/utils/validation";
-import { sendContactEmail } from "@/utils/email";
+import { useCallback, useState } from 'react';
+import {
+  SUBMIT_STATUS,
+  type ContactFormErrors,
+  type ContactFormField,
+  type ContactFormValues,
+  type SubmitStatus,
+} from '@/types';
+import { validateAll, validateField } from '@/utils/validation';
+import { sendContactEmail } from '@/utils/email';
 
 const initialValues: ContactFormValues = {
-  name: "",
-  email: "",
-  message: "",
+  name: '',
+  email: '',
+  message: '',
 };
 
 export function useContactForm() {
   const [values, setValues] = useState<ContactFormValues>(initialValues);
   const [errors, setErrors] = useState<ContactFormErrors>({});
-  const [touched, setTouched] = useState<Partial<Record<ContactFormField, boolean>>>({});
-  const [status, setStatus] = useState<SubmitStatus>("idle");
+  const [touched, setTouched] = useState<
+    Partial<Record<ContactFormField, boolean>>
+  >({});
+  const [status, setStatus] = useState<SubmitStatus>('idle');
 
-  const handleChange = useCallback(
-    (field: ContactFormField, value: string) => {
-      setValues((prev) => ({ ...prev, [field]: value }));
+  const handleChange = useCallback((field: ContactFormField, value: string) => {
+    setValues((prev) => ({ ...prev, [field]: value }));
 
-      setErrors((prev) => {
-        if (!prev[field]) return prev;
-        const message = validateField(field, value);
-        return { ...prev, [field]: message || undefined };
-      });
+    setErrors((prev) => {
+      if (!prev[field]) return prev;
+      const message = validateField(field, value);
+      return { ...prev, [field]: message || undefined };
+    });
+  }, []);
+
+  const handleBlur = useCallback(
+    (field: ContactFormField) => {
+      setTouched((prev) => ({ ...prev, [field]: true }));
+      setErrors((prev) => ({
+        ...prev,
+        [field]: validateField(field, values[field]) || undefined,
+      }));
     },
-    []
+    [values],
   );
-
-  const handleBlur = useCallback((field: ContactFormField) => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-    setErrors((prev) => ({
-      ...prev,
-      [field]: validateField(field, values[field]) || undefined,
-    }));
-  }, [values]);
 
   const handleSubmit = useCallback(
     async (event: React.FormEvent<HTMLFormElement>) => {
@@ -50,25 +53,33 @@ export function useContactForm() {
       setTouched({ name: true, email: true, message: true });
 
       if (Object.keys(nextErrors).length > 0) {
-        setStatus("idle");
+        setStatus('idle');
         return;
       }
 
-      setStatus("sending");
+      setStatus(SUBMIT_STATUS.SENDING);
 
       try {
         await sendContactEmail(values);
-        setStatus("success");
+        setStatus(SUBMIT_STATUS.SUCCESS);
         setValues(initialValues);
         setTouched({});
         setErrors({});
       } catch (error) {
-        console.error("Failed to send contact email:", error);
-        setStatus("error");
+        console.error('Failed to send contact email:', error);
+        setStatus('error');
       }
     },
-    [values]
+    [values],
   );
 
-  return { values, errors, touched, status, handleChange, handleBlur, handleSubmit };
+  return {
+    values,
+    errors,
+    touched,
+    status,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+  };
 }
