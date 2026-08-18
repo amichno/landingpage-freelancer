@@ -3,7 +3,7 @@ import { SocialLinks } from '@/components/ui/SocialLinks';
 
 export function Header() {
   return (
-    <header className='relative z-10 pt-10'>
+    <header className='relative z-40 pt-10'>
       <div className='mx-auto flex max-w-[1180px] items-center justify-between px-6 sm:px-10'>
         <a
           href='#top'
