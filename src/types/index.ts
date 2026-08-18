@@ -16,13 +16,20 @@ export interface Project {
 export interface SocialLink {
   label: string;
   href: string;
-  icon: "github" | "dribbble" | "linkedin" | "twitter";
+  icon: 'github' | 'dribbble' | 'linkedin' | 'twitter';
 }
 
-export type ContactFormField = "name" | "email" | "message";
+export type ContactFormField = 'name' | 'email' | 'message';
 
 export type ContactFormValues = Record<ContactFormField, string>;
 
 export type ContactFormErrors = Partial<Record<ContactFormField, string>>;
 
-export type SubmitStatus = "idle" | "sending" | "success" | "error";
+export type SubmitStatus = 'idle' | 'sending' | 'success' | 'error';
+
+export const SUBMIT_STATUS = {
+  IDLE: 'idle',
+  SENDING: 'sending',
+  SUCCESS: 'success',
+  ERROR: 'error',
+} as const;

@@ -1,39 +1,53 @@
-import type { ChangeEvent, FocusEvent } from "react";
-import type { ContactFormField } from "@/types";
+import type { ChangeEvent, FocusEvent } from 'react';
+import type { ContactFormField } from '@/types';
 
 interface FormFieldProps {
   field: ContactFormField;
   label: string;
-  type?: "text" | "email" | "textarea";
+  type?: 'text' | 'email' | 'textarea';
   value: string;
   error?: string;
+  disabled?: boolean;
   onChange: (field: ContactFormField, value: string) => void;
   onBlur: (field: ContactFormField) => void;
 }
 
-export function FormField({ field, label, type = "text", value, error, onChange, onBlur }: FormFieldProps) {
-  const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+export function FormField({
+  field,
+  label,
+  type = 'text',
+  value,
+  error,
+  disabled = false,
+  onChange,
+  onBlur,
+}: FormFieldProps) {
+  const handleChange = (
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     onChange(field, event.target.value);
   };
 
-  const handleBlur = (_event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleBlur = (
+    _event: FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     onBlur(field);
   };
 
   const inputClasses = `w-full bg-transparent border-0 border-b text-[0.95rem] text-white py-1.5 focus:outline-none ${
-    error ? "border-danger" : "border-white/10 focus:border-accent"
+    error ? 'border-danger' : 'border-white/10 focus:border-accent'
   }`;
 
   return (
-    <div className="mb-7">
+    <div className='mb-7'>
       <label
         htmlFor={field}
-        className="mb-2 block text-[0.72rem] uppercase tracking-[0.12em] text-muted"
+        className='mb-2 block text-[0.72rem] uppercase tracking-[0.12em] text-muted'
       >
         {label}
       </label>
 
-      {type === "textarea" ? (
+      {type === 'textarea' ? (
         <textarea
           id={field}
           name={field}
@@ -42,6 +56,7 @@ export function FormField({ field, label, type = "text", value, error, onChange,
           onChange={handleChange}
           onBlur={handleBlur}
           className={`${inputClasses} resize-none`}
+          disabled={disabled}
         />
       ) : (
         <input
@@ -52,12 +67,18 @@ export function FormField({ field, label, type = "text", value, error, onChange,
           onChange={handleChange}
           onBlur={handleBlur}
           className={inputClasses}
-          autoComplete={field === "email" ? "email" : field === "name" ? "name" : undefined}
+          disabled={disabled}
+          autoComplete={
+            field === 'email' ? 'email' : field === 'name' ? 'name' : undefined
+          }
         />
       )}
 
-      <span role="alert" className="mt-1.5 block min-h-[1.1rem] text-[0.75rem] text-danger">
-        {error ?? ""}
+      <span
+        role='alert'
+        className='mt-1.5 block min-h-[1.1rem] text-[0.75rem] text-danger'
+      >
+        {error ?? ''}
       </span>
     </div>
   );
