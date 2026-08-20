@@ -3,8 +3,16 @@ import { FormField } from '@/components/ui/FormField';
 import { SUBMIT_STATUS } from '@/types';
 
 export function Contact() {
-  const { values, errors, status, handleChange, handleBlur, handleSubmit } =
-    useContactForm();
+  const {
+    values,
+    errors,
+    status,
+    honeypot,
+    handleChange,
+    handleBlur,
+    handleSubmit,
+    setHoneypot,
+  } = useContactForm();
 
   return (
     <section id='contact' className='relative z-10 bg-bg-alt py-10 sm:py-16'>
@@ -21,6 +29,21 @@ export function Contact() {
         </div>
 
         <form onSubmit={handleSubmit} noValidate className='flex-[1.5]'>
+          <div
+            className='absolute h-0 w-0 overflow-hidden opacity-0'
+            aria-hidden='true'
+          >
+            <label htmlFor='company'>Company</label>
+            <input
+              type='text'
+              id='company'
+              name='company'
+              tabIndex={-1}
+              autoComplete='off'
+              value={honeypot}
+              onChange={(event) => setHoneypot(event.target.value)}
+            />
+          </div>
           <FormField
             field='name'
             label='Name'
@@ -65,7 +88,7 @@ export function Contact() {
             </span>
             <button
               type='submit'
-              disabled={status == SUBMIT_STATUS.SENDING}
+              disabled={status === SUBMIT_STATUS.SENDING}
               className='inline-block rounded-sm border border-accent px-6 py-3 text-center font-display text-[0.72rem] font-bold uppercase tracking-[0.12em] text-accent transition-colors hover:bg-accent hover:text-bg focus-visible:bg-accent focus-visible:text-bg disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-accent'
             >
               {status === SUBMIT_STATUS.SENDING ? 'Sending...' : 'Send Message'}
