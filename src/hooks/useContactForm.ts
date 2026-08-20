@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   SUBMIT_STATUS,
   type ContactFormErrors,
@@ -21,7 +21,12 @@ export function useContactForm() {
   const [touched, setTouched] = useState<
     Partial<Record<ContactFormField, boolean>>
   >({});
-  const [status, setStatus] = useState<SubmitStatus>('idle');
+  const [status, setStatus] = useState<SubmitStatus>(SUBMIT_STATUS.IDLE);
+  const [honeypot, setHoneypot] = useState('');
+
+  const formLoadedAt = useRef(Date.now());
+
+  const MIN_SUBMIT_TIME_MS = 1500;
 
   const handleChange = useCallback((field: ContactFormField, value: string) => {
     setValues((prev) => ({ ...prev, [field]: value }));
@@ -48,12 +53,25 @@ export function useContactForm() {
     async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
+      const isLikelyBot =
+        honeypot.trim().length > 0 ||
+        Date.now() - formLoadedAt.current < MIN_SUBMIT_TIME_MS;
+
+      if (isLikelyBot) {
+        setStatus(SUBMIT_STATUS.SUCCESS);
+        setValues(initialValues);
+        setHoneypot('');
+        setTouched({});
+        setErrors({});
+        return;
+      }
+
       const nextErrors = validateAll(values);
       setErrors(nextErrors);
       setTouched({ name: true, email: true, message: true });
 
       if (Object.keys(nextErrors).length > 0) {
-        setStatus('idle');
+        setStatus(SUBMIT_STATUS.IDLE);
         return;
       }
 
@@ -67,7 +85,7 @@ export function useContactForm() {
         setErrors({});
       } catch (error) {
         console.error('Failed to send contact email:', error);
-        setStatus('error');
+        setStatus(SUBMIT_STATUS.ERROR);
       }
     },
     [values],
@@ -78,8 +96,10 @@ export function useContactForm() {
     errors,
     touched,
     status,
+    honeypot,
     handleChange,
     handleBlur,
     handleSubmit,
+    setHoneypot,
   };
 }
